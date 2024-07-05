@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css">  
+
+    <style>
+      html,body{ 
+        margin: 0px;
+        padding: 0px;
+        height:100%;
+      }
+      #map {
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        width: 100%;        
+      }      
+    </style>
+
+    <title>臺灣通用電子地圖</title>
+
+  </head>
+
+  <body> 
+    <div id="map" class="map"></div>
+
+    <script type="text/javascript">
+
+      var projection = ol.proj.get('EPSG:3857');
+      var projectionExtent = projection.getExtent();
+      var size = ol.extent.getWidth(projectionExtent) / 256;
+      var resolutions = new Array(20);
+      var matrixIds = new Array(20);
+      for (var z = 0; z < 20; ++z) {
+        resolutions[z] = size / Math.pow(2, z);
+        matrixIds[z] = z;
+      }
+
+      var map = new ol.Map({            //create a OpenLayers Map object  
+        target: 'map',         
+        layers: [
+ 
+          new ol.layer.Tile({          //通用電子地圖                
+            extent: projectionExtent,
+            source: new ol.source.WMTS({
+              url: 'http://wmts.nlsc.gov.tw/wmts?',
+              layer: 'EMAP',
+              matrixSet: 'GoogleMapsCompatible',
+              format: 'image/jpeg',
+              projection: projection,
+              tileGrid: new ol.tilegrid.WMTS({
+                origin: ol.extent.getTopLeft(projectionExtent),
+                resolutions:resolutions,
+                matrixIds:matrixIds,
+              }),
+              extent: projectionExtent,
+              style: 'default'
+            })
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.transform([121.751,23.8],'EPSG:4326','EPSG:3857'),
+          zoom: 4  //8
+        })
+      });
+
+        
+    </script>
+   
+  </body>
+</html>
